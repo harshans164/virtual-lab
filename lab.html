@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab Simulation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1c2c 0%, #2a3c7d 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+        }
+
+        /* Decorative elements */
+        .decoration {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s infinite ease-in-out;
+        }
+
+        .decoration:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+        }
+
+        .decoration:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -2s;
+        }
+
+        .decoration:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            right: -75px;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Modal styling */
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #1a1c2c, #4a569d);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            border-top: none;
+            padding: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4a569d, #1a1c2c);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 86, 157, 0.4);
+        }
+
+        /* Canvas enhancement */
+        canvas {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative background elements -->
+    <div class="decoration"></div>
+    <div class="decoration"></div>
+    <div class="decoration"></div>
+    
+    <div id="game-container" class="animate__animated animate__fadeIn"></div>
+
+    <!-- Modal for steps -->
+    <div class="modal fade" id="stepModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Step Instructions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="stepModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add error handling for script loading
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.log('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError: ' + error);
+            return false;
+        };
+
+        // Function to show step modal
+        function showStepModal(text) {
+            const stepModal = new bootstrap.Modal(document.getElementById('stepModal'));
+            document.getElementById('stepModalBody').textContent = text;
+            stepModal.show();
+        }
+
+        // Function to show experiment completion
+        function showExperimentComplete() {
+            const modal = new bootstrap.Modal(document.getElementById('stepModal'));
+            document.getElementById('stepModalBody').innerHTML = `
+                <p>Experiment Complete! You can now calculate the results.</p>
+                <button id="calculateBtn" class="btn btn-primary">Calculate Results</button>
+            `;
+            modal.show();
+
+            // The button is inside the modal now, so we need to add the event listener after it's shown
+            document.getElementById('calculateBtn').addEventListener('click', function() {
+                const r = 2; // Blue ball radius in mm
+                const R = 4; // Red ball radius in mm
+                
+                // The height is the difference between DistA and DistB
+                const height = 5; // 15mm - 10mm
+                
+                const rDiff = R - r;
+                const sinAlpha = rDiff / height;
+                const alpha = Math.asin(sinAlpha) * (180 / Math.PI);
+
+                window.location.href = `results.html?r=${r}&R=${R}&rDiff=${rDiff}&height=${height}&alpha=${alpha}`;
+            });
+        }
+    </script>
+    <script src="js/objects/ball.js"></script>
+    <script src="js/objects/ball2.js"></script>
+    <script src="js/objects/funnel.js"></script>
+    <script src="js/objects/ruler.js"></script>
+    <script src="js/utils/physics.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
